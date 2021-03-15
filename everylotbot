@@ -1,0 +1,52 @@
+import os
+import matplotlib.pyplot as plt
+import pandas as pd
+import yaml
+from sqlalchemy import create_engine
+
+os.chdir('Documents')
+os.chdir('UT Fall20')
+os.chdir('history')
+
+shul = pd.read_csv('ShulNames3.csv')
+shul = shul[['Name','LOCATION','NYC_LAT','NYC_LONG']]
+shul = shul.rename(columns={'Name': 'id','LOCATION':'address','NYC_LAT': 'lat','NYC_LONG':'lon'})
+
+shul['tweeted'] = 0
+shul['housed'] = ' housed '
+
+engine = create_engine('sqlite:///shul.db', echo=True)
+sqlite_connection = engine.connect()
+sqlite_table = "lots"
+shul.to_sql(sqlite_table, sqlite_connection, if_exists='fail')
+sqlite_connection.close()
+
+bots= dict(
+  apps= dict(
+    OldShulSpots= dict(
+      consumer_key= "sZA5KbgW4to0mtV8CUbnlpqoc",
+      consumer_secret= "p0OF3zmguRIVu6oCI7s5KC2WwUdmjK3un7CGZmxEAOjLUWScH8",
+    )
+  ),
+  users = dict(
+    OldShulSpots=dict(
+      key= "1362605308405833737-AmOPYZLAaXBZUjUZ7WwZc2Qo3GUGE0",
+      secret= "kf4B3Ac3RbEPa2wn5OlegEqBVViIvVZ7MB6z4kUxyCucJ",
+      app= "OldShulSpots",
+    )
+  ),
+    streetview= "AIzaSyA9qngDsEga_9t_62XgPIxhc61rWoBz7zs",
+)
+
+with open('bots.yaml', 'w') as outfile:
+    yaml.dump(bots, outfile, default_flow_style=False)
+
+with open("bots.yaml", 'r') as stream:
+    try:
+        print(yaml.safe_load(stream))
+    except yaml.YAMLError as exc:
+        print(exc)
+
+exit()
+
+everylot OldShulSpots shul.db --config bots.yaml --print-format {address}{housed}{id}
