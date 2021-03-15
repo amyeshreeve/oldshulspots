@@ -1,0 +1,317 @@
+#Setup
+import os
+import matplotlib.pyplot as plt
+import pandas as pd
+import bokeh.io
+import numpy as np
+
+shul = pd.read_excel('ShulNames3.xlsx')
+shul['Name'] = shul['Name'].str.rstrip("'").str.strip()
+
+#Separate out the known years and unknown years
+sy=shul[shul.Year!=0]
+sy=shul[shul.Year>=1830]
+sy.to_csv('yearshul.csv')
+
+##Create categories, pattern search names for items in categories, create new dfs with and w/o
+#Names
+
+namelist = ['Dovid', 'David', 'Rubin', 
+  'Abraham', 'Isaac', 'Itzik', 'Yitzchok', 
+  'Jacob', 'Yacob', 'Yakob', 'Jakob', 'Moses' ,
+  'Moshe', 'Mosheh', 'Lvei', 'Levi', 'Levy', 
+  'Joshua', 'Yeshua', 'Yeshuath', 'Joshun', 'Hillel', 
+  'Benjamin', 'Menashe', 'Menasheh', 'Menachem', 'Zvi', 
+  'Tsvi', 'Samuel', 'Rabbi', 'Rabbenu', 'Schlomo', 'Aaron', 
+  'Aron', 'Joseph', 'Moredecai']
+pattern = '|'.join(namelist)
+
+def pattern_searcher(search_str:str, search_list:str):
+
+    search_obj = re.search(search_list, search_str)
+    if search_obj :
+        return_str = search_str[search_obj.start(): search_obj.end()]
+    else:
+        return_str = 'NA'
+    return return_str
+
+shul['NameHad'] = shul['Name'].apply(lambda x: pattern_searcher(search_str=x, search_list=pattern))
+sy['NameHad'] = sy['Name'].apply(lambda x: pattern_searcher(search_str=x, search_list=pattern))
+
+shulwname = shul[shul.NameHad!='NA']
+sywname = sy[sy.NameHad!='NA']
+
+#Adjectives
+adjlist = ['Zedek', 'Tzdek', 'Tsdek', 'Tsdak', 
+  'Tzdak', 'Zedak', 'Hazedek', 'Amuno', 
+  'Emuno', 'Emuna', 'Emunah', 'Chesed', 
+  'Derech', 'Darech', 'Mogen', 'Mugain', 
+  'Magen', 'Sholem', 'Sholom', 'Shalom', 
+  'Shoulem', 'Klein', 'Kleiner', 'Chai', 
+  'Achai', 'Chaim', 'Ahavas', 'Ahavath', 'Ahuvim', 
+  'Ahuwim', 'First', 'Achim','Emeth', 'Hagodol','Godol',
+  'Peace','Tifereth','Tiferes','Tiffereth','Tiphereth',
+  'United', 'Ohev','Oheb','Ohavei','Machzike',
+  'Independent', 'Gmilath', 'Gemilath','Erste','Ez','Ezra']
+  
+pattern = '|'.join(adjlist)
+shul['AdjHad'] = shul['Name'].apply(lambda x: pattern_searcher(search_str=x, search_list=pattern))
+
+sy['AdjHad'] = sy['Name'].apply(lambda x: pattern_searcher(search_str=x, search_list=pattern))
+
+shulwadj = shul[shul.AdjHad!='NA']
+sywadj = sy[sy.AdjHad!='NA']
+
+#Religious Indicators
+religlist = ['Torah', 'Tora', 'Torath', 'Talmud', 
+  'Tallmud', 'Talmudical', 'Mishnah', 'Mishneh', 
+  'Tefila', 'Tfilo', 'Tefilah', 'Tphillah' 'Jerushalaym', 
+  'Jerusalem', 'Jeshurun', 'Yesho', 'Hachasidim', 'Chassidei', 
+  'Israel', 'Yisrael','Kodesh', 'Chodesh', 'Nusach', 'Hatfilo', 
+  'Mickveh', 'Mikvah', 'Chasidei', 'Zion', 'Shem Tov','Shomre', 
+  'Shabbos','Shabbo','Shomrei','Sinai', 'Machzikei','El']
+  
+pattern = '|'.join(religlist)
+shul['RelHad'] = shul['Name'].apply(lambda x: pattern_searcher(search_str=x, search_list=pattern))
+
+sy['RelHad'] = sy['Name'].apply(lambda x: pattern_searcher(search_str=x, search_list=pattern))
+
+shulwrel = shul[shul.RelHad!='NA']
+sywrel = sy[sy.RelHad!='NA']
+
+#See frequency by year - elections tutorial
+sf = sy.Name.str.split(expand=True).stack().value_counts()
+
+Separate out unknown countries
+
+sc=shul[shul.Country!='N']
+shul['Country'].value_counts()
+
+#Compare country totals
+
+syp = sy[sy.Country=='Poland']
+syu=sy[sy.Country=='Ukraine']
+syb=sy[sy.Country=='Belarus']
+syl=sy[sy.Country=='Lithuania']
+
+polyear = syp['Year']
+ukyear = syu['Year']
+belyear = syb['Year']
+lityear = syl['Year']
+syear = sy['Year']
+
+plt.style.use('seaborn-deep')
+bins = np.linspace(1840, 1940, 100)
+plt.hist(syear, bins, alpha=.8, label = "All")
+plt.hist(polyear, bins, alpha=.8, label = "Poland")
+plt.hist(ukyear, bins, alpha=.8, label = "Ukraine")
+plt.hist(belyear, bins, alpha=.8, label = "Belarus")
+plt.hist(lityear, bins, alpha=.8, label = "Lithuania")
+plt.legend(loc='upper left')
+
+for all countries in Country
+  do # of countries per year divided by 
+  shul['Country'].value_counts()
+  
+#Comparison by country and topic
+
+sywadj = sy[sy.AdjHad!='NA']
+sywname = sy[sy.NameHad!='NA']
+syworg = sy[sy.OrgHad!='NA']
+sywrel = sy[sy.RelHad!='NA']adj = sywadj['Year']
+
+adj = sywadj['Year']
+wname = sywname['Year']
+org = syworg['Year']
+rel = sywrel['Year']
+
+a = plt.hist(adj, bins = 18)
+b = plt.hist(wname, bins = 18)
+c = plt.hist(org, bins = 18)
+d = plt.hist(rel, bins = 18)
+
+##Find frequency by country of origin
+
+sywadj = sy[sy.AdjHad!='NA']
+sywname = sy[sy.NameHad!='NA']
+syworg = sy[sy.OrgHad!='NA']
+sywrel = sy[sy.RelHad!='NA']
+
+#Poland
+sywadjp = sywadj[sywadj.Country=='Poland']
+sywnamep = sywname[sywname.Country=='Poland']
+syworgp = syworg[syworg.Country=='Poland']
+sywrelp = sywrel[sywrel.Country=='Poland']
+
+adjp = sywadjp['Year']
+wnamep = sywnamep['Year']
+orgp = syworgp['Year']
+relp = sywrelp['Year']
+
+pa = plt.hist(adjp, bins = 18)
+pb = plt.hist(wnamep, bins = 18)
+pc = plt.hist(orgp, bins = 18)
+pd = plt.hist(relp, bins = 18)
+
+#Belarus
+sywadjb = sywadj[sywadj.Country=='Belarus']
+sywnameb = sywname[sywname.Country=='Belarus']
+syworgb = syworg[syworg.Country=='Belarus']
+sywrelb = sywrel[sywrel.Country=='Belarus']
+
+adjb = sywadjb['Year']
+wnameb = sywnameb['Year']
+orgb = syworgb['Year']
+relb = sywrelb['Year']
+
+ba = plt.hist(adjb, bins = 18)
+bb = plt.hist(wnameb, bins = 18)
+bc = plt.hist(orgb, bins = 18)
+bd = plt.hist(relb, bins = 18)
+
+#Ukraine
+sywadju = sywadj[sywadj.Country=='Ukraine']
+sywnameu = sywname[sywname.Country=='Ukraine']
+syworgu = syworg[syworg.Country=='Ukraine']
+sywrelu = sywrel[sywrel.Country=='Ukraine']
+
+adju = sywadj['Year']
+wnameu = sywname['Year']
+orgu = syworg['Year']
+relu = sywrel['Year']
+
+ua = plt.hist(adju, bins = 18)
+ub = plt.hist(wnameu, bins = 18)
+uc = plt.hist(orgu, bins = 18)
+ud = plt.hist(relu, bins = 18)
+
+#Lithuania
+sywadjl = sywadj[sywadj.Country=='Lithuania']
+sywnamel = sywname[sywname.Country=='Lithuania']
+syworgl = syworg[syworg.Country=='Lithuania']
+sywrell = sywrel[sywrel.Country=='Lithuania']
+
+adjl = sywadjl['Year']
+wnamel = sywnamel['Year']
+orgl = syworgl['Year']
+rell = sywrell['Year']
+
+la = plt.hist(adjl, bins = 18)
+lb = plt.hist(wnamel, bins = 18)
+lc = plt.hist(orgl, bins = 18)
+ld = plt.hist(rell, bins = 18)
+
+#National Affiliation versus Non Affiliation
+sc=sy[sy.Country!='N']
+snc=sy[sy.Country=='N']
+
+#Euro Location Map
+sc=shul[shul.City!='N']
+shul = pd.read_csv('ShulNames3.csv')
+lat = sc['EX_LAT'].values
+long = sc['EX_LONG'].values
+
+margin = 2
+lat_min = min(lat) - margin
+lat_max = max(lat) + margin
+long_min = min(long) - margin
+long_max = max(long) + margin
+
+m = Basemap(llcrnrlon=long_min,
+            llcrnrlat=lat_min,
+            urcrnrlon=long_max,
+            urcrnrlat=lat_max,
+            lat_0=(lat_max - lat_min)/2,
+            lon_0=(long_max-long_min)/2,
+            projection='merc',
+            resolution = 'h')
+m.drawcoastlines()
+lons, lats = m(long, lat)
+m.scatter(lons, lats, marker = '.', color='#D69A80')
+plt.title('Location of Origin of Jewish Organizations')
+
+#NYC Location Map
+sc=shul[shul.City!='N']
+shul = pd.read_csv('ShulNames3.csv')
+lat = sc['NYC_LAT'].values
+long = sc['NYC_LONG'].values
+
+margin = .05
+lat_min = min(lat) - margin
+lat_max = max(lat) + margin
+long_min = min(long) - margin
+long_max = max(long) + margin
+
+m = Basemap(llcrnrlon=long_min,
+            llcrnrlat=lat_min,
+            urcrnrlon=long_max,
+            urcrnrlat=lat_max,
+            lat_0=(lat_max - lat_min)/2,
+            lon_0=(long_max-long_min)/2,
+            projection='merc',
+            resolution = 'h')
+m.drawcoastlines()
+lons, lats = m(long, lat)
+m.scatter(lons, lats, marker = '.', color='#D69A80')
+plt.title('Location of Jewish Organizations')
+
+#Markers to make individual country location maps
+scp = sc[sc.Country=='Poland']
+scu=sc[sc.Country=='Ukraine']
+scb=sc[sc.Country=='Belarus']
+scl=sc[sc.Country=='Lithuania']
+
+lat = scp['NYC_LAT'].values
+long = scp['NYC_LONG'].values
+
+lat = scu['NYC_LAT'].values
+long = scu['NYC_LONG'].values
+
+lat = scb['NYC_LAT'].values
+long = scb['NYC_LONG'].values
+
+lat = scl['NYC_LAT'].values
+long = scl['NYC_LONG'].values
+
+lat = snc['NYC_LAT'].values
+long = snc['NYC_LONG'].values
+
+#Mapping By Movement
+
+sc=shul[shul.Country!='N']
+sor=sc[sc.Movement!='Orthodox']
+lat = sor['EX_LAT'].values
+long = sor['EX_LONG'].values
+
+margin = 2
+lat_min = min(lat) - margin
+lat_max = max(lat) + margin
+long_min = min(long) - margin
+long_max = max(long) + margin
+
+# mapping comparison over time
+
+before 1850 = s50
+1850-1885 = s85 -- combined 2nd
+85-00 here goes 00 = s00
+00-10 here goes 07 = s10
+10-20 here goes 17 = s20
+after 1920 here goes 50
+
+sy = shul[shul.Year!=0]
+sny = shul[shul.Year==0]
+s50 = sy[sy.Year<=1850]
+s85 = sy[sy.Year>1850]
+s85 = s85[s85.Year<=1885]
+s00 = sy[sy.Year>1885]
+s00 = s00[s00.Year<=1900]
+s10 = sy[sy.Year>1900]
+s10 = s10[s10.Year<=1910]
+s20 = sy[sy.Year>1910]
+s20 = s20[s20.Year<=1920]
+s21 = sy[sy.Year>1920]
+second = s50.append(s85)
+third = second.append(s00)
+fourth = third.append(s10)
+fifth = fourth.append(s20)
+sixth = fifth.append(s21)
