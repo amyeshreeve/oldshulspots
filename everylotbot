@@ -24,18 +24,18 @@ sqlite_connection.close()
 bots= dict(
   apps= dict(
     OldShulSpots= dict(
-      consumer_key= "sZA5KbgW4to0mtV8CUbnlpqoc",
-      consumer_secret= "p0OF3zmguRIVu6oCI7s5KC2WwUdmjK3un7CGZmxEAOjLUWScH8",
+      consumer_key= "tk",
+      consumer_secret= "tk",
     )
   ),
   users = dict(
     OldShulSpots=dict(
-      key= "1362605308405833737-AmOPYZLAaXBZUjUZ7WwZc2Qo3GUGE0",
-      secret= "kf4B3Ac3RbEPa2wn5OlegEqBVViIvVZ7MB6z4kUxyCucJ",
+      key= "tk",
+      secret= "tk",
       app= "OldShulSpots",
     )
   ),
-    streetview= "AIzaSyA9qngDsEga_9t_62XgPIxhc61rWoBz7zs",
+    streetview= "tk",
 )
 
 with open('bots.yaml', 'w') as outfile:
